@@ -28,6 +28,7 @@ typedef enum {
     SY_OP_BANG,
     SY_OP_TILDE,
     SY_OP_STAR,
+    SY_OP_POWER,
     SY_OP_AMP,
     SY_OP_DIV,
     SY_OP_MOD,
@@ -86,41 +87,42 @@ struct tok_equiv{
 const struct tok_equiv token_list[] = {
         SY_OP( SY_OP_INC,           "++",       SY_TWO( 2,  SY_ASSOC_RTL,   1, SY_ASSOC_LTR ) ),
         SY_OP( SY_OP_DEC,           "--",       SY_TWO( 2,  SY_ASSOC_RTL,   1, SY_ASSOC_LTR ) ),
-        SY_OP( SY_OP_PLUS,          "+",        SY_TWO( 2,  SY_ASSOC_RTL,   4, SY_ASSOC_LTR ) ),
-        SY_OP( SY_OP_MINUS,         "-",        SY_TWO( 2,  SY_ASSOC_RTL,   4, SY_ASSOC_LTR ) ),
-        SY_OP( SY_OP_STAR,          "*",        SY_TWO( 2,  SY_ASSOC_RTL,   3, SY_ASSOC_LTR ) ),
-        SY_OP( SY_OP_AMP,           "&",        SY_TWO( 2,  SY_ASSOC_RTL,   8, SY_ASSOC_LTR ) ),
+        SY_OP( SY_OP_PLUS,          "+",        SY_TWO( 2,  SY_ASSOC_RTL,   5, SY_ASSOC_LTR ) ),
+        SY_OP( SY_OP_MINUS,         "-",        SY_TWO( 2,  SY_ASSOC_RTL,   5, SY_ASSOC_LTR ) ),
+        SY_OP( SY_OP_STAR,          "*",        SY_TWO( 2,  SY_ASSOC_RTL,   4, SY_ASSOC_LTR ) ),
+        SY_OP( SY_OP_AMP,           "&",        SY_TWO( 2,  SY_ASSOC_RTL,   9, SY_ASSOC_LTR ) ),
+        SY_OP( SY_OP_POWER,         "**",       SY_ONE( 3,  SY_ASSOC_LTR ) ),
         SY_OP( SY_OP_SIZEOF,        "sizeof",   SY_ONE( 2,  SY_ASSOC_RTL ) ),
         SY_OP( SY_OP_DOT,           ".",        SY_ONE( 1,  SY_ASSOC_LTR ) ),
         SY_OP( SY_OP_ARROW,         "->",       SY_ONE( 1,  SY_ASSOC_LTR ) ),
         SY_OP( SY_OP_BANG,          "!",        SY_ONE( 2,  SY_ASSOC_RTL ) ),
         SY_OP( SY_OP_TILDE,         "~",        SY_ONE( 2,  SY_ASSOC_RTL ) ),
-        SY_OP( SY_OP_DIV,           "/",        SY_ONE( 3,  SY_ASSOC_LTR ) ),
-        SY_OP( SY_OP_MOD,           "%",        SY_ONE( 3,  SY_ASSOC_LTR ) ),
-        SY_OP( SY_OP_RSHIFT,        ">>",       SY_ONE( 5,  SY_ASSOC_LTR ) ),
-        SY_OP( SY_OP_LSHIFT,        "<<",       SY_ONE( 5,  SY_ASSOC_LTR ) ),
-        SY_OP( SY_OP_LT,            "<",        SY_ONE( 6,  SY_ASSOC_LTR ) ),
-        SY_OP( SY_OP_LTE,           "<=",       SY_ONE( 6,  SY_ASSOC_LTR ) ),
-        SY_OP( SY_OP_GT,            ">",        SY_ONE( 6,  SY_ASSOC_LTR ) ),
-        SY_OP( SY_OP_GTE,           ">=",       SY_ONE( 6,  SY_ASSOC_LTR ) ),
-        SY_OP( SY_OP_EQUALS,        "==",       SY_ONE( 7,  SY_ASSOC_LTR ) ),
-        SY_OP( SY_OP_BANG_EQUALS,   "!=",       SY_ONE( 7,  SY_ASSOC_LTR ) ),
-        SY_OP( SY_OP_CARAT,         "^",        SY_ONE( 9,  SY_ASSOC_LTR ) ),
-        SY_OP( SY_OP_PIPE,          "|",        SY_ONE( 10, SY_ASSOC_LTR ) ),
-        SY_OP( SY_OP_AND,           "&&",       SY_ONE( 11, SY_ASSOC_LTR ) ),
-        SY_OP( SY_OP_OR,            "||",       SY_ONE( 12, SY_ASSOC_LTR ) ),
-        SY_OP( SY_OP_ASSIGN,        "=",        SY_ONE( 13, SY_ASSOC_RTL ) ),
-        SY_OP( SY_OP_PLUS_ASSIGN,   "+=",       SY_ONE( 13, SY_ASSOC_RTL ) ),
-        SY_OP( SY_OP_MINUS_ASSIGN,  "-=",       SY_ONE( 13, SY_ASSOC_RTL ) ),
-        SY_OP( SY_OP_STAR_ASSIGN,   "*=",       SY_ONE( 13, SY_ASSOC_RTL ) ),
-        SY_OP( SY_OP_DIV_ASSIGN,    "/=",       SY_ONE( 13, SY_ASSOC_RTL ) ),
-        SY_OP( SY_OP_MOD_ASSIGN,    "%=",       SY_ONE( 13, SY_ASSOC_RTL ) ),
-        SY_OP( SY_OP_LSHIFT_ASSIGN, "<<=",      SY_ONE( 13, SY_ASSOC_RTL ) ),
-        SY_OP( SY_OP_RSHIFT_ASSIGN, ">>=",      SY_ONE( 13, SY_ASSOC_RTL ) ),
-        SY_OP( SY_OP_AMP_ASSIGN,    "&=",       SY_ONE( 13, SY_ASSOC_RTL ) ),
-        SY_OP( SY_OP_CARAT_ASSIGN,  "^=",       SY_ONE( 13, SY_ASSOC_RTL ) ),
-        SY_OP( SY_OP_PIPE_ASSIGN,   "|=",       SY_ONE( 13, SY_ASSOC_RTL ) ),
-        SY_OP( SY_OP_COMMA,         ",",        SY_ONE( 13, SY_ASSOC_RTL ) ),
+        SY_OP( SY_OP_DIV,           "/",        SY_ONE( 4,  SY_ASSOC_LTR ) ),
+        SY_OP( SY_OP_MOD,           "%",        SY_ONE( 4,  SY_ASSOC_LTR ) ),
+        SY_OP( SY_OP_RSHIFT,        ">>",       SY_ONE( 6,  SY_ASSOC_LTR ) ),
+        SY_OP( SY_OP_LSHIFT,        "<<",       SY_ONE( 6,  SY_ASSOC_LTR ) ),
+        SY_OP( SY_OP_LT,            "<",        SY_ONE( 7,  SY_ASSOC_LTR ) ),
+        SY_OP( SY_OP_LTE,           "<=",       SY_ONE( 7,  SY_ASSOC_LTR ) ),
+        SY_OP( SY_OP_GT,            ">",        SY_ONE( 7,  SY_ASSOC_LTR ) ),
+        SY_OP( SY_OP_GTE,           ">=",       SY_ONE( 7,  SY_ASSOC_LTR ) ),
+        SY_OP( SY_OP_EQUALS,        "==",       SY_ONE( 8,  SY_ASSOC_LTR ) ),
+        SY_OP( SY_OP_BANG_EQUALS,   "!=",       SY_ONE( 8,  SY_ASSOC_LTR ) ),
+        SY_OP( SY_OP_CARAT,         "^",        SY_ONE( 10, SY_ASSOC_LTR ) ),
+        SY_OP( SY_OP_PIPE,          "|",        SY_ONE( 11, SY_ASSOC_LTR ) ),
+        SY_OP( SY_OP_AND,           "&&",       SY_ONE( 12, SY_ASSOC_LTR ) ),
+        SY_OP( SY_OP_OR,            "||",       SY_ONE( 13, SY_ASSOC_LTR ) ),
+        SY_OP( SY_OP_ASSIGN,        "=",        SY_ONE( 14, SY_ASSOC_RTL ) ),
+        SY_OP( SY_OP_PLUS_ASSIGN,   "+=",       SY_ONE( 14, SY_ASSOC_RTL ) ),
+        SY_OP( SY_OP_MINUS_ASSIGN,  "-=",       SY_ONE( 14, SY_ASSOC_RTL ) ),
+        SY_OP( SY_OP_STAR_ASSIGN,   "*=",       SY_ONE( 14, SY_ASSOC_RTL ) ),
+        SY_OP( SY_OP_DIV_ASSIGN,    "/=",       SY_ONE( 14, SY_ASSOC_RTL ) ),
+        SY_OP( SY_OP_MOD_ASSIGN,    "%=",       SY_ONE( 14, SY_ASSOC_RTL ) ),
+        SY_OP( SY_OP_LSHIFT_ASSIGN, "<<=",      SY_ONE( 14, SY_ASSOC_RTL ) ),
+        SY_OP( SY_OP_RSHIFT_ASSIGN, ">>=",      SY_ONE( 14, SY_ASSOC_RTL ) ),
+        SY_OP( SY_OP_AMP_ASSIGN,    "&=",       SY_ONE( 14, SY_ASSOC_RTL ) ),
+        SY_OP( SY_OP_CARAT_ASSIGN,  "^=",       SY_ONE( 14, SY_ASSOC_RTL ) ),
+        SY_OP( SY_OP_PIPE_ASSIGN,   "|=",       SY_ONE( 14, SY_ASSOC_RTL ) ),
+        SY_OP( SY_OP_COMMA,         ",",        SY_ONE( 15, SY_ASSOC_RTL ) ),
         SY_OP( SY_OP_SEMICOLON,     ";",        SY_NONE( ) ),
         SY_OP( SY_OP_COLON,         ":",        SY_NONE( ) ),
         SY_OP( SY_OP_CBRACE_OPEN,   "{",        SY_NONE( ) ),
@@ -166,6 +168,10 @@ void print_tok( tok_t * tok ){
 }
 void print_tok2( tok_t * tok ){
     size_t i;
+    if( tok->prefix && tok->type == SY_TYPE_OPER ){
+        putchar('p');
+        putchar('(');
+    }
     if( tok->type == SY_TYPE_OPER && tok->op_ord == SY_OP_INDEX){
         putchar('[');
         putchar(']');
@@ -174,6 +180,9 @@ void print_tok2( tok_t * tok ){
         for( i = 0; i < tok->tok_len; ++i ){
             putchar(tok->data[i]);
         }
+    }
+    if( tok->prefix && tok->type == SY_TYPE_OPER ){
+        putchar(')');
     }
     putchar(' ');
 }
@@ -426,7 +435,7 @@ tok_t * infix_to_postfix( const char * data ){
 }
 
 int main(){
-    const char * data = "average(foo.level(\"Isaac\", \"osrs\", 20), foo.level(\"Isaac\", \"osrs\", 0))";
+    const char * data = "4 * -2 ** 2";
     //const char * data = "sizeof(0)[\"123456789\"]";
     tok_t * postfix = infix_to_postfix( data );
     tok_t * iter = postfix;
