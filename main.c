@@ -12,56 +12,6 @@ typedef enum{
     SY_TYPE_FUNC,
 } sy_type_t;
 
-/*
-const struct tok_equiv token_list[] = {
-        {"++", SY_OP_INC},
-        {"--", SY_OP_DEC},
-        {"{", SY_OP_CBRACE_OPEN},
-        {"}", SY_OP_CBRACE_CLOSE},
-        {"(", SY_OP_PAREN_OPEN},
-        {")", SY_OP_PAREN_CLOSE},
-        {"[", SY_OP_SBRACE_OPEN},
-        {"]", SY_OP_SBRACE_CLOSE},
-        {".", SY_OP_DOT},
-        {"->", SY_OP_ARROW},
-        {"+", SY_OP_PLUS},
-        {"-", SY_OP_MINUS},
-        {"!", SY_OP_BANG},
-        {"~", SY_OP_TILDE},
-        {"*", SY_OP_STAR},
-        {"&", SY_OP_AMP},
-        {"/", SY_OP_DIV},
-        {"%", SY_OP_MOD},
-        {">>", SY_OP_RSHIFT},
-        {"<<", SY_OP_LSHIFT},
-        {"<", SY_OP_LT},
-        {"<=", SY_OP_LTE},
-        {">", SY_OP_GT},
-        {">=", SY_OP_GTE},
-        {"==", SY_OP_EQUALS},
-        {"!=", SY_OP_BANG_EQUALS},
-        {"^", SY_OP_CARAT},
-        {"|", SY_OP_PIPE},
-        {"&&", SY_OP_AND},
-        {"||", SY_OP_OR},
-        {"=", SY_OP_ASSIGN},
-        {"+=", SY_OP_PLUS_ASSIGN},
-        {"-=", SY_OP_MINUS_ASSIGN},
-        {"*=", SY_OP_STAR_ASSIGN},
-        {"/=", SY_OP_DIV_ASSIGN},
-        {"%=", SY_OP_MOD_ASSIGN},
-        {"<<=", SY_OP_LSHIFT_ASSIGN},
-        {">>=", SY_OP_RSHIFT_ASSIGN},
-        {"&=", SY_OP_AMP_ASSIGN},
-        {"^=", SY_OP_CARAT_ASSIGN},
-        {"|=", SY_OP_PIPE_ASSIGN},
-        {",", SY_OP_COMMA},
-        {";", SY_OP_SEMICOLON},
-        {":", SY_OP_COLON},
-        {"sizeof", SY_OP_SIZEOF},
-        {NULL, SY_OP_NULL},
-};*/
-
 typedef enum {
     SY_OP_INC,
     SY_OP_DEC,
@@ -133,7 +83,6 @@ struct tok_equiv{
 #define SY_ONE(prec, ass) SY_TWO(prec, ass, prec, ass)
 #define SY_NONE() SY_ONE(1000, SY_ASSOC_NONE)
 
-
 const struct tok_equiv token_list[] = {
         SY_OP( SY_OP_INC,           "++",       SY_TWO( 2,  SY_ASSOC_RTL,   1, SY_ASSOC_LTR ) ),
         SY_OP( SY_OP_DEC,           "--",       SY_TWO( 2,  SY_ASSOC_RTL,   1, SY_ASSOC_LTR ) ),
@@ -193,6 +142,28 @@ typedef struct token{
     size_t args;
 } tok_t;
 
+void print_tok( tok_t * tok ){
+    const char * name;
+    switch( tok->type ){
+        case SY_TYPE_CHR: name = "CHAR"; break;
+        case SY_TYPE_ID: name = "ID  "; break;
+        case SY_TYPE_NUM: name = "NUM "; break;
+        case SY_TYPE_OPER: name = "OPER"; break;
+        case SY_TYPE_STR: name = "STR "; break;
+        case SY_TYPE_FUNC: name = "FUNC"; break;
+
+        default: name = "NONE"; break;
+    }
+    printf("%s ", name);
+    size_t i;
+    for( i = 0; i < tok->tok_len; ++i ){
+        putchar(tok->data[i]);
+    }
+    if( tok->type == SY_TYPE_FUNC ){
+        printf("(%zu)", tok->args);
+    }
+    putchar('\n');
+}
 void print_tok2( tok_t * tok ){
     size_t i;
     if( tok->type == SY_TYPE_OPER && tok->op_ord == SY_OP_INDEX){
@@ -304,32 +275,9 @@ int sy_read_token( tok_t * tok ){
 
 #include <stdlib.h>
 #define PUSH(base,ptr) do{ size_t new_len = (ptr) - (base) + 1; (base) = realloc((base), (new_len + 1) * sizeof(*(base))); (ptr) = (base) + new_len; } while(0)
-
 #define POP(base,ptr) ((ptr)--)
 
 
-void print_tok( tok_t * tok ){
-    const char * name;
-    switch( tok->type ){
-        case SY_TYPE_CHR: name = "CHAR"; break;
-        case SY_TYPE_ID: name = "ID  "; break;
-        case SY_TYPE_NUM: name = "NUM "; break;
-        case SY_TYPE_OPER: name = "OPER"; break;
-        case SY_TYPE_STR: name = "STR "; break;
-        case SY_TYPE_FUNC: name = "FUNC"; break;
-
-        default: name = "NONE"; break;
-    }
-    printf("%s ", name);
-    size_t i;
-    for( i = 0; i < tok->tok_len; ++i ){
-        putchar(tok->data[i]);
-    }
-    if( tok->type == SY_TYPE_FUNC ){
-        printf("(%zu)", tok->args);
-    }
-    putchar('\n');
-}
 
 void pop_to( tok_t ** out_base, tok_t ** out, tok_t ** ops_base, tok_t ** ops, sy_op_t ord ){
     while( *ops != *ops_base && (*ops)[-1].op_ord != ord ){
@@ -354,117 +302,6 @@ void get_precedence( tok_t * val, int * precedence, assoc_t * assoc ){
         *precedence = token_list[ val->op_ord ].prec_suffix;
         *assoc = token_list[ val->op_ord ].assoc_suffix;
     }
-    /*switch( val->op_ord ){
-        case SY_OP_DOT: case SY_OP_ARROW:
-            *precedence = 1;
-            *assoc = SY_ASSOC_LTR;
-            break;
-
-        case SY_OP_BANG: case SY_OP_TILDE: case SY_OP_SIZEOF:
-            *precedence = 2;
-            *assoc = SY_ASSOC_RTL;
-            break;
-
-        case SY_OP_DIV: case SY_OP_MOD:
-            *precedence = 3;
-            *assoc = SY_ASSOC_LTR;
-            break;
-
-        case SY_OP_LSHIFT: case SY_OP_RSHIFT:
-            *precedence = 5;
-            *assoc = SY_ASSOC_LTR;
-            break;
-
-        case SY_OP_LT: case SY_OP_LTE: case SY_OP_GT: case SY_OP_GTE:
-            *precedence = 6;
-            *assoc = SY_ASSOC_LTR;
-            break;
-
-        case SY_OP_EQUALS: case SY_OP_BANG_EQUALS:
-            *precedence = 7;
-            *assoc = SY_ASSOC_LTR;
-            break;
-
-        case SY_OP_CARAT:
-            *precedence = 9;
-            *assoc = SY_ASSOC_LTR;
-            break;
-
-        case SY_OP_PIPE:
-            *precedence = 10;
-            *assoc = SY_ASSOC_LTR;
-            break;
-
-        case SY_OP_AND:
-            *precedence = 11;
-            *assoc = SY_ASSOC_LTR;
-            break;
-
-        case SY_OP_OR:
-            *precedence = 12;
-            *assoc = SY_ASSOC_LTR;
-            break;
-
-        case SY_OP_ASSIGN: case SY_OP_PLUS_ASSIGN: case SY_OP_MINUS_ASSIGN: case SY_OP_STAR_ASSIGN:
-        case SY_OP_DIV_ASSIGN: case SY_OP_MOD_ASSIGN: case SY_OP_RSHIFT_ASSIGN: case SY_OP_LSHIFT_ASSIGN:
-        case SY_OP_AMP_ASSIGN: case SY_OP_CARAT_ASSIGN: case SY_OP_PIPE_ASSIGN:
-            *precedence = 14;
-            *assoc = SY_ASSOC_RTL;
-            break;
-
-        default:
-            if( val->prefix ){
-                switch( val->op_ord ){
-                    case SY_OP_INC: case SY_OP_DEC:
-                        *precedence = 2;
-                        *assoc = SY_ASSOC_RTL;
-                        break;
-
-                    case SY_OP_PLUS: case SY_OP_MINUS:
-                        *precedence = 2;
-                        *assoc = SY_ASSOC_RTL;
-                        break;
-
-                    case SY_OP_STAR:
-                        *precedence = 2;
-                        *assoc = SY_ASSOC_RTL;
-                        break;
-
-                    case SY_OP_AMP:
-                        *precedence = 2;
-                        *assoc = SY_ASSOC_RTL;
-                        break;
-
-                    default: break;
-                }
-            }
-            else{
-                switch( val->op_ord ){
-                    case SY_OP_INC: case SY_OP_DEC:
-                        *precedence = 1;
-                        *assoc = SY_ASSOC_LTR;
-                        break;
-
-                    case SY_OP_PLUS: case SY_OP_MINUS:
-                        *precedence = 4;
-                        *assoc = SY_ASSOC_LTR;
-                        break;
-
-                    case SY_OP_STAR:
-                        *precedence = 3;
-                        *assoc = SY_ASSOC_LTR;
-                        break;
-
-                    case SY_OP_AMP:
-                        *precedence = 8;
-                        *assoc = SY_ASSOC_LTR;
-                        break;
-
-                    default: break;
-                }
-            }
-            break;
-    }*/
 }
 
 void push_op( tok_t ** out_base, tok_t ** out, tok_t ** ops_base, tok_t ** ops, tok_t * val, int prefix ){
